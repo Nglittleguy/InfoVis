@@ -19,7 +19,7 @@
 </style>
 
 <body>
-<svg width="1000" height="1000">
+<svg width="1000" height="2500">
 
 
 </svg>
@@ -28,9 +28,12 @@
 
 <script>
 
-    var myProj = d3.geoNaturalEarth1().scale(200).translate([500,300])
+    var myProj = d3.geoNaturalEarth1().scale(200).translate([500,1700])
 
     var myPath = d3.geoPath().projection(myProj)
+
+    var yScale = 0.3
+
 
     Promise.all([
         d3.json("countries.geo.json"), 
@@ -51,6 +54,8 @@
             let c = d.properties.name
             let dataOfCountry = dataIndex[c]
             d.properties.Info = dataOfCountry
+            if(d.properties.Info==undefined)
+                d.properties.Info = [0, 0, 0, 0, 0, 0, 0, 0, 0]
             return d;
         })
 
@@ -86,12 +91,92 @@
             .each(function(d) {
                 console.log(d)
                 var centroid = myPath.centroid(d);
-                //console.log(centroid);
-                var point = map.append("circle")
-                .attr("cx", centroid[0])
-                .attr("cy", centroid[1])
-                .attr("r",5)
-                .style("fill", "blue")
+                console.log(centroid);
+                // var point = map.append("circle")
+                //     .attr("cx", centroid[0])
+                //     .attr("cy", centroid[1])
+                //     .attr("r",1)
+                //     .style("fill", "blue")
+                var coal = map.append("rect")
+                    .attr("x", centroid[0]-10)
+                    .attr("y", centroid[1]-d.properties.Info[1]*yScale)
+                    .attr("width", 2)
+                    .attr("height", d.properties.Info[1]*yScale)
+                    .style("stroke", "white")
+                    .style("stroke-width", 0)
+                    .style("fill", "red")
+                var gas = map.append("rect")
+                    .attr("x", centroid[0]-7)
+                    .attr("y", centroid[1]-d.properties.Info[2]*yScale)
+                    .attr("width", 2)
+                    .attr("height", d.properties.Info[2]*yScale)
+                    .style("stroke", "white")
+                    .style("stroke-width", 0)
+                    .style("fill", "orange")
+                var oil = map.append("rect")
+                    .attr("x", centroid[0]-4)
+                    .attr("y", centroid[1]-d.properties.Info[3]*yScale)
+                    .attr("width", 2)
+                    .attr("height", d.properties.Info[3]*yScale)
+                    .style("stroke", "white")
+                    .style("stroke-width", 0)
+                    .style("fill", "pink")
+                var nuclear = map.append("rect")
+                    .attr("x", centroid[0]-1)
+                    .attr("y", centroid[1]-d.properties.Info[4]*yScale)
+                    .attr("width", 2)
+                    .attr("height", d.properties.Info[4]*yScale)
+                    .style("stroke", "white")
+                    .style("stroke-width", 0)
+                    .style("fill", "green")
+                var hydro = map.append("rect")
+                    .attr("x", centroid[0]+2)
+                    .attr("y", centroid[1]-d.properties.Info[5]*yScale)
+                    .attr("width", 2)
+                    .attr("height", d.properties.Info[5]*yScale)
+                    .style("stroke", "white")
+                    .style("stroke-width", 0)
+                    .style("fill", "blue")
+                var solar = map.append("rect")
+                    .attr("x", centroid[0]+5)
+                    .attr("y", centroid[1]-d.properties.Info[6]*yScale)
+                    .attr("width", 2)
+                    .attr("height", d.properties.Info[6]*yScale)
+                    .style("stroke", "white")
+                    .style("stroke-width", 0)
+                    .style("fill", "blue")
+                var wind = map.append("rect")
+                    .attr("x", centroid[0]+8)
+                    .attr("y", centroid[1]-d.properties.Info[7]*yScale)
+                    .attr("width", 2)
+                    .attr("height", d.properties.Info[7]*yScale)
+                    .style("stroke", "white")
+                    .style("stroke-width", 0)
+                    .style("fill", "deepskyblue")
+                var other = map.append("oil")
+                    .attr("x", centroid[0]+11)
+                    .attr("y", centroid[1]-d.properties.Info[8]*yScale)
+                    .attr("width", 2)
+                    .attr("height", d.properties.Info[8]*yScale)
+                    .style("stroke", "white")
+                    .style("stroke-width", 0)
+                    .style("fill", "black")
+
+            })
+            .on("mouseover", function() {
+                this.style.stroke = "black"
+                this.style.fill = "lightgray"
+
+
+
+            })
+            .on("mouseout", function() {
+                this.style.stroke = "#999"
+                this.style.fill = "none"
+
+
+
+
             })
     }
 

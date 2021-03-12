@@ -28,6 +28,11 @@
 <svg width="1500" height="2100">
 </svg>
 
+<input type = "text" id = "yearText" value = "2019"><br>
+<label for="yearSelect">Year</label>
+<input type = "range" id = "year" name= "yearSelect" min="2000" max = "2019" value = "2019" step = "1" 
+	onchange="updateYear(this.value);"><br>
+
 <A HREF = "indexFlat.html">Flat</A>
 <A HREF = "indexSkew.html">Skew</A>
 <A HREF = "indexSplit.html">Split</A>
@@ -66,6 +71,12 @@
         })
     }
 
+
+    function updateYear(v) { 
+    	document.getElementById("yearText").value=v
+    	
+    }
+
     Promise.all([
         d3.json("countries.geo.json"), 
         d3.csv("electricity-production-by-source.csv")
@@ -78,7 +89,6 @@
         var countryData = dataIn[1]
 
         var dataIndex = {}
-        dataIndex[0] = "hi"
         for(var c of countryData) {
             var code = c.Entity
 			dataIndex[code]={}
@@ -167,6 +177,7 @@
                 	    .style("stroke-width", 0)
                 }
             })
+
     }
 
     //function drawData(countries) {

@@ -53,11 +53,22 @@
 
     function cleanUp(s) { return s.replace(/ /g, '').replace(/'/g,'') }
 
-
+    function loadYearData(country, data, year) {
+    	country.features = country.features.map(d => {
+            let c = d.properties.name
+            if(data[c]!=undefined) {
+            	let dataOfCountry = data[c][yearShowing]
+            	d.properties.Info = dataOfCountry
+            }
+            if(d.properties.Info==undefined)
+                d.properties.Info = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            return d;
+        })
+    }
 
     Promise.all([
         d3.json("countries.geo.json"), 
-        d3.csv("electricity-production-by-source-2019.csv")
+        d3.csv("electricity-production-by-source.csv")
     ]).then(showMapData)
     
 
@@ -67,21 +78,19 @@
         var countryData = dataIn[1]
 
         var dataIndex = {}
+        dataIndex[0] = "hi"
         for(var c of countryData) {
-            let code = c.Entity
-            dataIndex[code] = [+c.Year, +c.Coal, +c.Gas, +c.Oil, +c.Nuclear, +c.Hydro, +c.Solar, +c.Wind, +c.Other]
+            var code = c.Entity
+			dataIndex[code]={}
+        }
+        for(var c of countryData) {
+        	var code = c.Entity
+        	var year = +c.Year
+        	dataIndex[code][year] = [+c.Year, +c.Coal, +c.Gas, +c.Oil, +c.Nuclear, +c.Hydro, +c.Solar, +c.Wind, +c.Other]
         }
 
-
-
-        country.features = country.features.map(d => {
-            let c = d.properties.name
-            let dataOfCountry = dataIndex[c]
-            d.properties.Info = dataOfCountry
-            if(d.properties.Info==undefined)
-                d.properties.Info = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-            return d;
-        })
+        loadYearData(country, dataIndex, yearShowing);
+        
 
         /*
         Areas changed:

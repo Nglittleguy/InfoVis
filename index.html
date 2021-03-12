@@ -19,16 +19,25 @@
 </style>
 
 <body>
-<svg width="1000" height="2500">
 
+<A HREF = "indexFlat.html">Flat</A>
+<A HREF = "indexSkew.html">Skew</A>
+<A HREF = "indexSplit.html">Split</A>
+<A HREF = "indexRadial.html">Radial</A>
 
+<svg width="1500" height="2100">
 </svg>
+
+<A HREF = "indexFlat.html">Flat</A>
+<A HREF = "indexSkew.html">Skew</A>
+<A HREF = "indexSplit.html">Split</A>
+<A HREF = "indexRadial.html">Radial</A>
 
 </body>
 
 <script>
 
-    var myProj = d3.geoNaturalEarth1().scale(200).translate([500,1700])
+    var myProj = d3.geoNaturalEarth1().scale(250).translate([500,1700])
 
     var myPath = d3.geoPath().projection(myProj)
 
@@ -40,6 +49,11 @@
         d3.csv("electricity-production-by-source-2019.csv")
     ]).then(showMapData)
 
+    function cleanUp(s) {
+    	return s.replace(/ /g, '').replace(/'/g,'')
+    }
+    
+
     function showMapData(dataIn) {
         var country = dataIn[0]
         var countryData = dataIn[1]
@@ -49,6 +63,8 @@
             let code = c.Entity
             dataIndex[code] = [+c.Year, +c.Coal, +c.Gas, +c.Oil, +c.Nuclear, +c.Hydro, +c.Solar, +c.Wind, +c.Other]
         }
+
+
 
         country.features = country.features.map(d => {
             let c = d.properties.name
@@ -98,6 +114,7 @@
                 //     .attr("r",1)
                 //     .style("fill", "blue")
                 var coal = map.append("rect")
+                	.attr("id", cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-coal")
                     .attr("x", centroid[0]-10)
                     .attr("y", centroid[1]-d.properties.Info[1]*yScale)
                     .attr("width", 2)
@@ -106,6 +123,7 @@
                     .style("stroke-width", 0)
                     .style("fill", "red")
                 var gas = map.append("rect")
+                	.attr("id", cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-gas")
                     .attr("x", centroid[0]-7)
                     .attr("y", centroid[1]-d.properties.Info[2]*yScale)
                     .attr("width", 2)
@@ -114,6 +132,7 @@
                     .style("stroke-width", 0)
                     .style("fill", "orange")
                 var oil = map.append("rect")
+                	.attr("id", cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-oil")
                     .attr("x", centroid[0]-4)
                     .attr("y", centroid[1]-d.properties.Info[3]*yScale)
                     .attr("width", 2)
@@ -122,6 +141,7 @@
                     .style("stroke-width", 0)
                     .style("fill", "pink")
                 var nuclear = map.append("rect")
+                	.attr("id", cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-nuclear")
                     .attr("x", centroid[0]-1)
                     .attr("y", centroid[1]-d.properties.Info[4]*yScale)
                     .attr("width", 2)
@@ -130,6 +150,7 @@
                     .style("stroke-width", 0)
                     .style("fill", "green")
                 var hydro = map.append("rect")
+                	.attr("id", cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-hydro")
                     .attr("x", centroid[0]+2)
                     .attr("y", centroid[1]-d.properties.Info[5]*yScale)
                     .attr("width", 2)
@@ -138,14 +159,16 @@
                     .style("stroke-width", 0)
                     .style("fill", "blue")
                 var solar = map.append("rect")
+                	.attr("id", cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-solar")
                     .attr("x", centroid[0]+5)
                     .attr("y", centroid[1]-d.properties.Info[6]*yScale)
                     .attr("width", 2)
                     .attr("height", d.properties.Info[6]*yScale)
                     .style("stroke", "white")
                     .style("stroke-width", 0)
-                    .style("fill", "blue")
+                    .style("fill", "yellow")
                 var wind = map.append("rect")
+                	.attr("id", cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-wind")
                     .attr("x", centroid[0]+8)
                     .attr("y", centroid[1]-d.properties.Info[7]*yScale)
                     .attr("width", 2)
@@ -153,7 +176,8 @@
                     .style("stroke", "white")
                     .style("stroke-width", 0)
                     .style("fill", "deepskyblue")
-                var other = map.append("oil")
+                var other = map.append("rect")
+                	.attr("id", cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-other")
                     .attr("x", centroid[0]+11)
                     .attr("y", centroid[1]-d.properties.Info[8]*yScale)
                     .attr("width", 2)
@@ -163,20 +187,111 @@
                     .style("fill", "black")
 
             })
-            .on("mouseover", function() {
+            .on("mouseover", function(d) {
                 this.style.stroke = "black"
                 this.style.fill = "lightgray"
-
-
-
+                var centroid = myPath.centroid(d);
+                d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-coal")
+                	.attr("x", centroid[0]-10.25)
+                	.attr("y", centroid[1]-d.properties.Info[1]*yScale-0.25)
+                    .attr("width", 2.5)
+                    .attr("height", d.properties.Info[1]*yScale+0.5)
+                    .style("stroke-width", 0.5)
+                d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-gas")
+                	.attr("x", centroid[0]-7.25)
+                	.attr("y", centroid[1]-d.properties.Info[2]*yScale-0.25)
+                    .attr("width", 2.5)
+                    .attr("height", d.properties.Info[2]*yScale+0.5)
+                    .style("stroke-width", 0.5)
+                d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-oil")
+                	.attr("x", centroid[0]-4.25)
+                	.attr("y", centroid[1]-d.properties.Info[3]*yScale-0.25)
+                    .attr("width", 2.5)
+                    .attr("height", d.properties.Info[3]*yScale+0.5)
+                    .style("stroke-width", 0.5)
+                d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-nuclear")
+                	.attr("x", centroid[0]-1.25)
+                	.attr("y", centroid[1]-d.properties.Info[4]*yScale-0.25)
+                    .attr("width", 2.5)
+                    .attr("height", d.properties.Info[4]*yScale+0.5)
+                    .style("stroke-width", 0.5)
+                d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-hydro")
+                	.attr("x", centroid[0]+1.75)
+                	.attr("y", centroid[1]-d.properties.Info[5]*yScale-0.25)
+                    .attr("width", 2.5)
+                    .attr("height", d.properties.Info[5]*yScale+0.5)
+                    .style("stroke-width", 0.5)
+                d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-solar")
+                	.attr("x", centroid[0]+4.75)
+                	.attr("y", centroid[1]-d.properties.Info[6]*yScale-0.25)
+                    .attr("width", 2.5)
+                    .attr("height", d.properties.Info[6]*yScale+0.5)
+                    .style("stroke-width", 0.5)
+                d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-wind")
+                	.attr("x", centroid[0]+7.75)
+                	.attr("y", centroid[1]-d.properties.Info[7]*yScale-0.25)
+                    .attr("width", 2.5)
+                    .attr("height", d.properties.Info[7]*yScale+0.5)
+                    .style("stroke-width", 0.5)
+                d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-other")
+                	.attr("x", centroid[0]+10.75)
+                	.attr("y", centroid[1]-d.properties.Info[8]*yScale-0.25)
+                    .attr("width", 2.5)
+                    .attr("height", d.properties.Info[8]*yScale+0.5)
+                    .style("stroke-width", 0.5)
             })
-            .on("mouseout", function() {
+            .on("mouseout", function(d) {
                 this.style.stroke = "#999"
                 this.style.fill = "none"
-
-
-
-
+                var centroid = myPath.centroid(d);
+                d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-coal")
+                	.attr("x", centroid[0]-10)
+                	.attr("y", centroid[1]-d.properties.Info[1]*yScale)
+                    .attr("width", 2)
+                    .attr("height", d.properties.Info[1]*yScale)
+                    .style("stroke-width", 0)
+                d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-gas")
+                	.attr("x", centroid[0]-7)
+                	.attr("y", centroid[1]-d.properties.Info[2]*yScale)
+                    .attr("width", 2)
+                    .attr("height", d.properties.Info[2]*yScale)
+                    .style("stroke-width", 0)
+                d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-oil")
+                	.attr("x", centroid[0]-4)
+                	.attr("y", centroid[1]-d.properties.Info[3]*yScale)
+                    .attr("width", 2)
+                    .attr("height", d.properties.Info[3]*yScale)
+                    .style("stroke-width", 0)
+                d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-nuclear")
+                	.attr("x", centroid[0]-1)
+                	.attr("y", centroid[1]-d.properties.Info[4]*yScale)
+                    .attr("width", 2)
+                    .attr("height", d.properties.Info[4]*yScale)
+                    .style("stroke-width", 0)
+                d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-hydro")
+                	.attr("x", centroid[0]+2)
+                	.attr("y", centroid[1]-d.properties.Info[5]*yScale)
+                    .attr("width", 2)
+                    .attr("height", d.properties.Info[5]*yScale)
+                    .style("stroke-width", 0)
+                d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-solar")
+                	.attr("x", centroid[0]+5)
+                	.attr("y", centroid[1]-d.properties.Info[6]*yScale)
+                    .attr("width", 2)
+                    .attr("height", d.properties.Info[6]*yScale)
+                    .style("stroke-width", 0)
+                d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-wind")
+                	.attr("x", centroid[0]+8)
+                	.attr("y", centroid[1]-d.properties.Info[7]*yScale)
+                    .attr("width", 2)
+                    .attr("height", d.properties.Info[7]*yScale)
+                    .style("stroke-width", 0)
+                d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-other")
+                	.attr("x", centroid[0]+11)
+                	.attr("y", centroid[1]-d.properties.Info[8]*yScale)
+                    .attr("width", 2)
+                    .attr("height", d.properties.Info[8]*yScale)
+                    .style("stroke-width", 0)
             })
     }
 

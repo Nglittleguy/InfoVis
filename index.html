@@ -43,26 +43,22 @@
 <script>
 
     var myProj = d3.geoNaturalEarth1().scale(250).translate([500,1700])
-
     var myPath = d3.geoPath().projection(myProj)
-
     var yScale = 0.3
-
     var yearShowing = 2019;
-
     var nameIndex = ["", "coal", "gas", "oil", "nuclear", "hydro", "solar", "wind", "other"]
-
     var colourIndex = ["none", "red", "orange", "pink", "green", "blue", "yellow", "deepskyblue", "black"]
-
     var offsetXIndex = [0, -10, -7, -4, -1, 2, 5, 8, 11]
+    var country;
+    var dataIndex = {};
 
     function cleanUp(s) { return s.replace(/ /g, '').replace(/'/g,'') }
 
-    function loadYearData(country, data, year) {
+    function loadYearData(year) {
     	country.features = country.features.map(d => {
             let c = d.properties.name
-            if(data[c]!=undefined) {
-            	let dataOfCountry = data[c][yearShowing]
+            if(dataIndex[c]!=undefined) {
+            	let dataOfCountry = dataIndex[c][year]
             	d.properties.Info = dataOfCountry
             }
             if(d.properties.Info==undefined)
@@ -74,56 +70,21 @@
 
     function updateYear(v) { 
     	document.getElementById("yearText").value=v
+    	loadYearData(v);
+    	d3.selectAll("path")
+    		.remove()
+    	d3.selectAll("rect")
+    		.remove()
+    	drawBars()
+    	
+
+
+    	//loadYearData(v)
     	
     }
 
-    Promise.all([
-        d3.json("countries.geo.json"), 
-        d3.csv("electricity-production-by-source.csv")
-    ]).then(showMapData)
-    
-
-
-    function showMapData(dataIn) {
-        var country = dataIn[0]
-        var countryData = dataIn[1]
-
-        var dataIndex = {}
-        for(var c of countryData) {
-            var code = c.Entity
-			dataIndex[code]={}
-        }
-        for(var c of countryData) {
-        	var code = c.Entity
-        	var year = +c.Year
-        	dataIndex[code][year] = [+c.Year, +c.Coal, +c.Gas, +c.Oil, +c.Nuclear, +c.Hydro, +c.Solar, +c.Wind, +c.Other]
-        }
-
-        loadYearData(country, dataIndex, yearShowing);
-        
-
-        /*
-        Areas changed:
-            The Bahamas (Bahamas)
-            Democratic Republic of the Congo (Democratic Republic of Congo)
-            Repulic of Congo (Congo)
-            Guinea Bissau (Guinea-Bissau)
-            Macedonia (North Macedonia)
-            Republic of Serbia (Serbia)
-            Swaziland (Eswatini)
-            Republic of Tanzania (Tanzania)
-            United States of America (United States)
-            West Bank (Palestine)
-        Areas without data: 
-            Antarctica
-            French Southern and Antarctic Lands
-            Kosovo
-            Somaliland
-            East Timor
-
-        */
-
-        var map = d3.select("svg");
+    function drawBars() {
+    	var map = d3.select("svg");
         map.selectAll("path")
             .data(country.features)
             .enter()
@@ -177,24 +138,55 @@
                 	    .style("stroke-width", 0)
                 }
             })
-
     }
 
-    //function drawData(countries) {
-        
-        // .on('click', function (d) {
-        //         var centroid = myPath.centroid(d);
-        //         console.log(centroid);
-        //         var point = map.append("circle")
-        //             .attr("cx", centroid[0])
-        //             .attr("cy", centroid[1])
-        //             .attr("r",5)
-        //             .style("fill", "blue")
 
-        //     })
-    //}
+    Promise.all([
+        d3.json("countries.geo.json"), 
+        d3.csv("electricity-production-by-source.csv")
+    ]).then(showMapData)
+    
 
 
+    function showMapData(dataIn) {
+        country = dataIn[0]
+        var countryData = dataIn[1]
+
+        for(var c of countryData) {
+            var code = c.Entity
+			dataIndex[code]={}
+        }
+        for(var c of countryData) {
+        	var code = c.Entity
+        	var year = +c.Year
+        	dataIndex[code][year] = [+c.Year, +c.Coal, +c.Gas, +c.Oil, +c.Nuclear, +c.Hydro, +c.Solar, +c.Wind, +c.Other]
+        }
+
+        loadYearData(yearShowing);
+        drawBars();
+
+        /*
+        Areas changed:
+            The Bahamas (Bahamas)
+            Democratic Republic of the Congo (Democratic Republic of Congo)
+            Repulic of Congo (Congo)
+            Guinea Bissau (Guinea-Bissau)
+            Macedonia (North Macedonia)
+            Republic of Serbia (Serbia)
+            Swaziland (Eswatini)
+            Republic of Tanzania (Tanzania)
+            United States of America (United States)
+            West Bank (Palestine)
+        Areas without data: 
+            Antarctica
+            French Southern and Antarctic Lands
+            Kosovo
+            Somaliland
+            East Timor
+
+        */
+
+    }
 
 </script>
 

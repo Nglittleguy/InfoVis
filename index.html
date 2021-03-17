@@ -59,7 +59,10 @@
             let c = d.properties.name
             if(dataIndex[c]!=undefined) {
             	let dataOfCountry = dataIndex[c][year]
-            	d.properties.Info = dataOfCountry
+            	d.properties.Info = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+                for(var i = 1; i<9; i++) {
+                    d.properties.Info[i] = dataOfCountry[i]
+                }
             }
             if(d.properties.Info==undefined)
                 d.properties.Info = [0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -68,9 +71,8 @@
     }
 
    	function updateYearData(year) {
-   		console.log("hi")
    		for(var d of country.features) {
-   			console.log(d.id)
+   			//console.log(d.id)
    			let c = d.properties.name
             if(dataIndex[c]!=undefined) {
             	let dataOfCountry = dataIndex[c][year]

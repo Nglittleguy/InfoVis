@@ -9,12 +9,11 @@
 
 <style>
     path {
-        fill: none;
+        fill: white;
         stroke: #999;
     }
-    circle {
-        fill = blue;
-    
+    rect {
+        stroke : white;
     }
 </style>
 
@@ -42,7 +41,7 @@
 
 <script>
 
-    var myProj = d3.geoNaturalEarth1().scale(250).translate([500,1700])
+    var myProj = d3.geoNaturalEarth1().scale(250).translate([575,1700])
     var myPath = d3.geoPath().projection(myProj)
     var yScale = 0.3
     var yearShowing = 2019;
@@ -120,7 +119,6 @@
                 		.attr("y", centroid[1]-d.properties.Info[i]*yScale)
                 		.attr("width", 2)
                     	.attr("height", d.properties.Info[i]*yScale)
-                    	.style("stroke", "white")
                     	.style("stroke-width", 0)
                     	.style("fill", colourIndex[i])
 
@@ -131,6 +129,7 @@
                 this.style.fill = "lightgray"
                 var centroid = myPath.centroid(d);
                 for(var i = 1; i<9; i++) {
+                    console.log(d.properties.name);
                 	d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-"+nameIndex[i])
                 		.attr("x", centroid[0]-0.25+offsetXIndex[i])
                 		.attr("y", centroid[1]-d.properties.Info[i]*yScale-0.25)
@@ -141,7 +140,7 @@
             })
             .on("mouseout", function(d) {
                 this.style.stroke = "#999"
-                this.style.fill = "none"
+                this.style.fill = "white"
                 var centroid = myPath.centroid(d);
                 for(var i = 1; i<9; i++) {
                 	d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-"+nameIndex[i])

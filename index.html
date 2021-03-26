@@ -27,8 +27,7 @@
 
 <svg viewBox="0 0 1500 2100">
 
-    <div id="slider-vertical"></div>
-
+    <g id="slider-vertical"></g>
     
 </svg>
 
@@ -83,7 +82,7 @@
     var sliderVertical = d3.sliderLeft()
         .min(0.5)
         .max(10)
-        .height(500)
+        .height(1000)
         .ticks(10)
         .default(1)
         .on('onchange', val => {
@@ -92,12 +91,12 @@
             updateYear(yearShowing)
         });
 
-    var gVertical = d3.select('div#slider-vertical')
+    var gVertical = d3.select('#slider-vertical')
         .append('svg')
-        .attr('width', 100)
-        .attr('height', 800)
-        .attr('x', 0)
-        .attr('y', 0)
+        .attr('width', 1000)
+        .attr('height', 1100)
+        .attr('x', 1300)
+        .attr('y', 1000)
         .append('g')
         .attr('transform', 'translate(80,30)');
 

@@ -9,12 +9,15 @@
 
 <style>
     path {
-        fill: none;
+        fill: skyblue;
         stroke: #999;
     }
     circle {
-        fill = blue;
+        fill : blue;
     
+    }
+    rect {
+        stroke : white;
     }
 </style>
 
@@ -42,7 +45,9 @@
 
 <script>
 
-    var myProj = d3.geoNaturalEarth1().scale(250).translate([500,1700])
+    
+
+    var myProj = d3.geoNaturalEarth1().scale(200).translate([500,1700])
     var myPath = d3.geoPath().projection(myProj)
     var yScale = 0.3
     var yearShowing = 2019;
@@ -108,7 +113,11 @@
             .data(country.features)
             .enter()
             .append("path")
-            .attr("d", myPath)
+            .attr("d", d=>myPath(d))
+
+            .on("click", function() {
+                this.style.fill = "red"
+            })
             .each(function(d) {
                 console.log(d)
                 var centroid = myPath.centroid(d);
@@ -120,13 +129,12 @@
                 		.attr("y", centroid[1]-d.properties.Info[i]*yScale)
                 		.attr("width", 2)
                     	.attr("height", d.properties.Info[i]*yScale)
-                    	.style("stroke", "white")
                     	.style("stroke-width", 0)
                     	.style("fill", colourIndex[i])
 
                 }
             })
-            .on("mouseover", function(d) {
+            .on("mouseover", function() {
                 this.style.stroke = "black"
                 this.style.fill = "lightgray"
                 var centroid = myPath.centroid(d);
@@ -136,12 +144,12 @@
                 		.attr("y", centroid[1]-d.properties.Info[i]*yScale-0.25)
                     	.attr("width", 2.5)
                     	.attr("height", d.properties.Info[i]*yScale+0.5)
-                    	.style("stroke-width", 0.5)
+                    	.style("stroke-width", 5)
                 }
             })
-            .on("mouseout", function(d) {
+            .on("mouseout", function() {
                 this.style.stroke = "#999"
-                this.style.fill = "none"
+                this.style.fill = "skyblue"
                 var centroid = myPath.centroid(d);
                 for(var i = 1; i<9; i++) {
                 	d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-"+nameIndex[i])

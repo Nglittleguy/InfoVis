@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>Electricity of the World</title>
     <script src="d3.js"></script>
+    <script src="https://unpkg.com/d3-simple-slider"></script>
 
 </head>
 
@@ -24,13 +25,19 @@
 <A HREF = "indexSplit.html">Split</A>
 <A HREF = "indexRadial.html">Radial</A>
 
-<svg width="1500" height="2100">
+<svg viewBox="0 0 1500 2100">
+    <svg>
+    <div id="slider-vertical"></div>
+
+    
 </svg>
 
-<input type = "text" id = "yearText" value = "2019"><br>
-<label for="yearSelect">Year</label>
-<input type = "range" id = "year" name= "yearSelect" min="2000" max = "2019" value = "2019" step = "1" 
-	onchange="updateYear(this.value);"><br>
+<div style = "text-align:center;"><h1><p id="value-time"></p></h1></div>
+<div id="slider-time"></div>
+
+
+
+
 <A HREF = "index.html">Animated</A>
 <A HREF = "indexFlat.html">Flat</A>
 <A HREF = "indexSkew.html">Skew</A>
@@ -41,6 +48,66 @@
 
 <script>
 
+    var width = window.innerWidth;
+
+    // Time/Scaling -- https://bl.ocks.org/johnwalley/e1d256b81e51da68f7feb632a53c3518
+    var dataTime = d3.range(0, 20).map(function(d) {
+        return new Date(2000 + d, 10, 3);
+    });
+    var sliderTime = d3.sliderBottom()
+        .min(d3.min(dataTime))
+        .max(d3.max(dataTime))
+        .step(1000 * 60 * 60 * 24 * 365)
+        .width(width-200)
+        .tickFormat(d3.timeFormat('%Y'))
+        .tickValues(dataTime)
+        .default(new Date(2019, 10, 3))
+        .on('onchange', val => {
+            d3.select('p#value-time').text(d3.timeFormat('%Y')(val));
+            updateYear(d3.timeFormat('%Y')(val));
+        });
+
+    var gTime = d3.select('div#slider-time')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', 100)
+        .append('g')
+        .attr('transform', 'translate(30,30)');
+
+    gTime.call(sliderTime);
+
+    d3.select('p#value-time').text(d3.timeFormat('%Y')(sliderTime.value()));
+
+
+    //Scaling Slider
+    var sliderVertical = d3.sliderLeft()
+        .min(0.001)
+        .max(1)
+        .height(800)
+        .tickFormat(d3.format('.2%'))
+        .ticks(10)
+        .default(0.015)
+        .on('onchange', val => {
+            d3.select('p#value-vertical').text(d3.format('.2%')(val));
+        });
+
+    var gVertical = d3.select('div#slider-vertical')
+        .append('svg')
+        .attr('width', 100)
+        .attr('height', 800)
+        .attr('x', 0)
+        .attr('y', 0)
+        .append('g')
+        .attr('transform', 'translate(80,30)');
+
+    gVertical.call(sliderVertical);
+
+    d3.select('p#value-vertical').text(d3.format('.2%')(sliderVertical.value()));
+
+
+
+    //Rest of Project
+
     var myProj = d3.geoNaturalEarth1().scale(250).translate([575,1700])
     var myPath = d3.geoPath().projection(myProj)
     var yScale = 0.3
@@ -50,6 +117,7 @@
     var offsetXIndex = [0, -10, -7, -4, -1, 2, 5, 8, 11]
     var country;
     var dataIndex = {};
+
 
     function cleanUp(s) { return s.replace(/ /g, '').replace(/'/g,'') }
 
@@ -70,34 +138,38 @@
     }
 
    	function updateYearData(year) {
+        yearShowing = year;
    		for(var d of country.features) {
-   			//console.log(d.id)
-   			let c = d.properties.name
-            if(dataIndex[c]!=undefined) {
-            	let dataOfCountry = dataIndex[c][year]
-            	for(var i = 1; i<9; i++) {
-            		d.properties.Info[i] = dataOfCountry[i]
-            	}
+   			if(d!=undefined) {
+                let c = d.properties.name
+                if(dataIndex[c]!=undefined) {
+                    let dataOfCountry = dataIndex[c][year]
+                    for(var i = 1; i<9; i++) {
+                        d.properties.Info[i] = dataOfCountry[i]
+                    }
+                }
             }
+   			
    		}
    	}
 
 
     function updateYear(v) { 
-    	document.getElementById("yearText").value=v
     	updateYearData(v);
     	console.log(v)
     	d3.selectAll("path")
     		.each(function(d) {
-    			var centroid = myPath.centroid(d);
-    			for(var i = 1; i<9; i++) {
-                	d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-"+nameIndex[i])
-                		.transition()
-                		.duration(500)
-                		.attr("y", centroid[1]-d.properties.Info[i]*yScale)
-                	    .attr("height", d.properties.Info[i]*yScale)
+                if(d.properties!=undefined){
+                    var centroid = myPath.centroid(d);
+                    for(var i = 1; i<9; i++) {
+                        d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-"+nameIndex[i])
+                            .transition()
+                            .duration(200)
+                            .attr("y", centroid[1]-d.properties.Info[i]*yScale)
+                            .attr("height", d.properties.Info[i]*yScale)
+                    }
                 }
-
+    			
     		})
     }
 

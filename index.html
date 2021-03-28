@@ -19,14 +19,8 @@
 </style>
 
 <body>
-<A HREF = "index.html">Animated</A>
-<A HREF = "indexFlat.html">Flat</A>
-<A HREF = "indexSkew.html">Skew</A>
-<A HREF = "indexSplit.html">Split</A>
-<A HREF = "indexRadial.html">Radial</A>
-
-<svg viewBox="0 0 1500 2100">
-
+<svg viewBox="0 0 1500 1400">
+    <g id="mapPaths"></g>
     <g id="slider-vertical"></g>
     
 </svg>
@@ -87,7 +81,7 @@
         .default(1)
         .on('onchange', val => {
             d3.select('p#value-vertical').text(d3.format('.2%')(val));
-            yScale = Math.pow(val,2)*0.2;
+            yScale = Math.pow(val,2)*0.18;
             updateYear(yearShowing)
         });
 
@@ -96,7 +90,7 @@
         .attr('width', 1000)
         .attr('height', 1100)
         .attr('x', 1300)
-        .attr('y', 1000)
+        .attr('y', 300)
         .append('g')
         .attr('transform', 'translate(80,30)');
 
@@ -108,15 +102,17 @@
 
     //Rest of Project
 
-    var myProj = d3.geoNaturalEarth1().scale(250).translate([575,1700])
+    var myProj = d3.geoNaturalEarth1().scale(250).translate([575,1050])
     var myPath = d3.geoPath().projection(myProj)
-    var yScale = 0.2
+    var yScale = 0.18
     var yearShowing = 2019;
     var nameIndex = ["", "coal", "gas", "oil", "nuclear", "hydro", "solar", "wind", "other"]
     var colourIndex = ["none", "red", "orange", "pink", "green", "blue", "yellow", "deepskyblue", "black"]
     var offsetXIndex = [0, -10, -7, -4, -1, 2, 5, 8, 11]
     var country;
     var dataIndex = {};
+
+
 
 
     function cleanUp(s) { return s.replace(/ /g, '').replace(/'/g,'') }
@@ -156,7 +152,6 @@
 
     function updateYear(v) { 
     	updateYearData(v);
-    	console.log(v)
     	d3.selectAll("path")
     		.each(function(d) {
                 if(d.properties!=undefined){
@@ -173,17 +168,36 @@
     		})
     }
 
+    function updateBars() {
+        d3.selectAll("path")
+            .each(function(d) {
+                if(d.properties!=undefined){
+                    var centroid = myPath.centroid(d);
+                    if(d.properties.name=="Canada")
+                    console.log(centroid);
+                    for(var i = 1; i<9; i++) {
+                        d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-"+nameIndex[i])
+                            .attr("x", centroid[0]+offsetXIndex[i])
+                            .attr("y", centroid[1]-d.properties.Info[i]*yScale)
+                            .attr("width", 2)
+                            .attr("height", d.properties.Info[i]*yScale)
+                    }
+                }
+                
+            })
+    }
+
     function drawBars() {
-    	var map = d3.select("svg");
+    	var map = d3.select("#mapPaths");
         map.selectAll("path")
             .data(country.features)
             .enter()
             .append("path")
             .attr("d", myPath)
-            .each(function(d) {
-                console.log(d)
-                var centroid = myPath.centroid(d);
 
+            .each(function(d) {
+                var centroid = myPath.centroid(d);
+                
                 for(var i = 1; i<9; i++) {
                 	map.append("rect")
                 		.attr("id", cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-"+nameIndex[i])
@@ -199,20 +213,27 @@
             .on("mouseover", function(d) {
                 this.style.stroke = "black"
                 this.style.fill = "lightgray"
+                var allOthers = d3.selectAll("rect")
+                	.attr("opacity", 0.3)
                 var centroid = myPath.centroid(d);
+                if(d.properties.name=="Canada")
+                    console.log(centroid);
                 for(var i = 1; i<9; i++) {
-                    console.log(d.properties.name);
                 	d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-"+nameIndex[i])
                 		.attr("x", centroid[0]-0.25+offsetXIndex[i])
                 		.attr("y", centroid[1]-d.properties.Info[i]*yScale-0.25)
                     	.attr("width", 2.5)
                     	.attr("height", d.properties.Info[i]*yScale+0.5)
                     	.style("stroke-width", 0.5)
+                    	.attr("opacity", 1)
                 }
+
             })
             .on("mouseout", function(d) {
                 this.style.stroke = "#999"
                 this.style.fill = "white"
+                var allOthers = d3.selectAll("rect")
+                	.attr("opacity", 1)
                 var centroid = myPath.centroid(d);
                 for(var i = 1; i<9; i++) {
                 	d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-"+nameIndex[i])
@@ -224,7 +245,17 @@
                 }
             })
     }
+    var container = d3.select("#mapPaths")
+    let myZoom = d3.zoom()
+        .scaleExtent([1, 5])
+        .translateExtent([[-300,-300], [1500, 1000]])
+        .on('zoom', () => {
+            d3.selectAll('path')
+                .attr('transform', d3.event.transform)
+            updateBars();
+        });
 
+    container.call(myZoom);
 
     Promise.all([
         d3.json("countries.geo.json"), 

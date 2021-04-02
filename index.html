@@ -21,6 +21,7 @@
 <body>
 <svg viewBox="0 0 1500 1400">
     <g id="mapPaths"></g>
+    <g id="barsRect"></g>
     <g id="slider-vertical"></g>
     
 </svg>
@@ -198,6 +199,7 @@
 
     function drawBars() {
     	var map = d3.select("#mapPaths");
+        var bars = d3.select("#barsRect");
         map.selectAll("path")
             .data(country.features)
             .enter()
@@ -207,7 +209,7 @@
             .each(function(d) {
                 var centroid = myPath.centroid(d);
                 for(var i = 1; i<9; i++) {
-                	map.append("rect")
+                	bars.append("rect")
                 		.attr("id", cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-"+nameIndex[i])
                 		.attr("x", centroidTransforms[1]+centroidTransforms[0]*(centroid[0])+offsetXIndex[i])
                 		.attr("y", centroidTransforms[2]+centroidTransforms[0]*centroid[1])
@@ -222,6 +224,7 @@
             .on("mouseover", function(d) {
                 this.style.stroke = "black"
                 this.style.fill = "lightgray"
+                d3.select(this).raise()
                 var allOthers = d3.selectAll("rect")
                 	.attr("opacity", 0.3)
                     .each(function(k) {
@@ -238,14 +241,17 @@
                     	.attr("height", d.properties.Info[i]*yScale+0.5)
                         .attr("transform", "translate(0,"+ -d.properties.Info[i]*yScale+")")
                     	.style("stroke-width", 0.5)
-                    	.attr("opacity", 1)
-
+                    	.attr("opacity", function() {
+                            d3.select(this).raise();
+                            return 1;
+                        })
                 }
 
             })
             .on("mouseout", function(d) {
                 this.style.stroke = "#999"
                 this.style.fill = "white"
+                d3.select(this).lower()
                 var allOthers = d3.selectAll("rect")
                 	.attr("opacity", 1)
                     .each(function(k) {

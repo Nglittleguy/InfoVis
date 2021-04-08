@@ -23,7 +23,7 @@
     <g id="mapPaths"></g>
     <g id="barsRect"></g>
     <g id="slider-vertical"></g>
-    
+    <g id="chart"></g>
 </svg>
 
 <div style = "text-align:center;"><h1><p id="value-time"></p></h1></div>
@@ -99,26 +99,86 @@
 
     d3.select('p#value-vertical').text(d3.format('.2%')(sliderVertical.value()));
 
+    //Update chart of selected country
+    function updateChart(d, b) {
+        if(start) {
+            chartScale = 360/d3.max(d)
+            for(var i = 1; i<9; i++) {
+                d3.select("#chart-"+nameIndex[i])
+                    .attr("height", d[i]*chartScale)
+                    .attr("transform", "translate(0,"+ -d[i]*chartScale+")")
+                d3.select("#chart-text-"+nameIndex[i])
+                    .text(d[i])
+                    .attr("y", 470-d[i]*chartScale)
+            }
+            start = false;
+        }
+        else {
+            chartScale = 360/d3.max(d)
+            for(var i = 1; i<9; i++) {
+                d3.select("#chart-"+nameIndex[i])
+                    .transition()
+                    .duration(b ? 500 : 200)
+                    .attr("height", d[i]*chartScale)
+                    .attr("transform", "translate(0,"+ -d[i]*chartScale+")")
+                d3.select("#chart-text-"+nameIndex[i])
+                    .text(d[i])
+                    .transition()
+                    .duration(b ? 500 : 200)
+                    .attr("y", 470-d[i]*chartScale)
+            }
+        }
+        
+    }
+
+    //Chart of Country
+    function drawChart() {
+        var chart = d3.select("#chart")
+        chart.append("rect").attr("id", "chartBackdrop").attr("x", 70).attr("y", 80).attr("width", 530).attr("height", 420).attr("fill", "lightgray")
 
 
-    //Rest of Project
+        for(var i = 1; i<9; i++) {
+            chart.append("rect")
+                .attr("id", "chart-"+nameIndex[i])
+                .attr("x", 130+20*(offsetXIndex[i]+10))
+                .attr("y", 480)
+                .attr("width", 20)
+                .style("stroke-width", 2)
+                .style("stroke", "white")
+                .style("fill", colourIndex[i])
+            chart.append("text")
+                .attr("id", "chart-text-"+nameIndex[i])
+                .attr("x", 140+20*(offsetXIndex[i]+10))
+                .attr("y", 480)
+                .attr("fill", "white")
+                .style("font", "bold 15px sans-serif")
+                .attr("text-anchor", "middle")
 
-    var myProj = d3.geoNaturalEarth1().scale(250).translate([575,1050])
+        }
+    }
+
+    //Rest of Project - https://www.w3schools.com/colors/colors_picker.asp
+
+    var myProj = d3.geoNaturalEarth1().scale(300).translate([575,1100])
     var myPath = d3.geoPath().projection(myProj)
     var yScale = 0.18
+    var chartScale = 0.9
+    var start = true;
     var yearShowing = 2019;
+    var countryShowing = "Canada"
     var nameIndex = ["", "coal", "gas", "oil", "nuclear", "hydro", "solar", "wind", "other"]
-    var colourIndex = ["none", "red", "orange", "pink", "green", "blue", "yellow", "deepskyblue", "black"]
+    var colourIndex = ["none", "#cc3333", "#cc8033", "#a633cc", "#009900", "#3333cc", "#cccc33", "#33a6cc", "#808080"]
     var offsetXIndex = [0, -10, -7, -4, -1, 2, 5, 8, 11]
     var country;
     var dataIndex = {};
 
-
+    //keep track of transformations used during scaling
     var centroidTransforms = [1,0,0];
 
-
+    //reduces name to make it consistent
     function cleanUp(s) { return s.replace(/ /g, '').replace(/'/g,'') }
 
+    //puts the inital year's data into the properties
     function loadYearData(year) {
     	country.features = country.features.map(d => {
             let c = d.properties.name
@@ -135,6 +195,7 @@
         })
     }
 
+    //change the data depending on the year (slider)
    	function updateYearData(year) {
         yearShowing = year;
    		for(var d of country.features) {
@@ -147,19 +208,22 @@
                     }
                 }
             }
-   			
    		}
    	}
 
 
+    //changes the year, so update the data as well as update the bars representing the data
     function updateYear(v) { 
     	updateYearData(v);
+
     	d3.selectAll("path")
     		.each(function(d) {
+                if(cleanUp(d.properties.name) == countryShowing)
+                    updateChart(d.properties.Info, 0)
                 if(d.properties!=undefined){
                     var centroid = myPath.centroid(d);
                     for(var i = 1; i<9; i++) {
-                        d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-"+nameIndex[i])
+                        d3.select("#"+cleanUp(d.properties.name)+"-"+nameIndex[i])
                             .transition()
                             .duration(200)
                             .attr("y", centroidTransforms[2]+centroidTransforms[0]*centroid[1])
@@ -167,10 +231,10 @@
                             .attr("transform", "translate(0,"+-d.properties.Info[i]*yScale+")")
                     }
                 }
-    			
     		})
     }
 
+    //change the bars given a transformation of the paths (zoom d3)
     function updateBars() {
         d3.selectAll("path")
             .each(function(d) {
@@ -178,7 +242,7 @@
                     var centroid = myPath.centroid(d);
             
                     for(var i = 1; i<9; i++) {
-                        var elem = d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-"+nameIndex[i])
+                        var elem = d3.select("#"+cleanUp(d.properties.name)+"-"+nameIndex[i])
                         elem.attr("x", centroidTransforms[1]+centroidTransforms[0]*(centroid[0])+offsetXIndex[i])
                             .attr("y", centroidTransforms[2]+centroidTransforms[0]*centroid[1])
                             .attr("width", 2)
@@ -189,14 +253,12 @@
                             elem.attr("opacity", 0)
                         else
                             elem.attr("opacity", 0.3)
-
-
                     }
-                }
-                
+                }                
             })
     }
 
+    //draws the paths of the map, and the bars of each country's data
     function drawBars() {
     	var map = d3.select("#mapPaths");
         var bars = d3.select("#barsRect");
@@ -207,10 +269,13 @@
             .attr("d", myPath)
 
             .each(function(d) {
+                if(cleanUp(d.properties.name)==countryShowing) {
+                    updateChart(d.properties.Info);
+                }
                 var centroid = myPath.centroid(d);
                 for(var i = 1; i<9; i++) {
                 	bars.append("rect")
-                		.attr("id", cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-"+nameIndex[i])
+                		.attr("id", cleanUp(d.properties.name)+"-"+nameIndex[i])
                 		.attr("x", centroidTransforms[1]+centroidTransforms[0]*(centroid[0])+offsetXIndex[i])
                 		.attr("y", centroidTransforms[2]+centroidTransforms[0]*centroid[1])
                 		.attr("width", 2)
@@ -226,15 +291,19 @@
                 this.style.fill = "lightgray"
                 d3.select(this).raise()
                 var allOthers = d3.selectAll("rect")
+                    .filter(function() {
+                        return !this.id.includes("chart")
+                    })
                 	.attr("opacity", 0.3)
                     .each(function(k) {
                         if(d3.select(this).attr("y")>1400)
                             d3.select(this).attr("opacity", 0)
                     })
                 var centroid = myPath.centroid(d);
-            
+                countryShowing = cleanUp(d.properties.name)
+                updateChart(d.properties.Info, 1)
                 for(var i = 1; i<9; i++) {
-                	d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-"+nameIndex[i])
+                	d3.select("#"+cleanUp(d.properties.name)+"-"+nameIndex[i])
                 		.attr("x", centroidTransforms[1]+centroidTransforms[0]*(centroid[0]-0.25)+offsetXIndex[i])
                 		.attr("y", centroidTransforms[2]+centroidTransforms[0]*centroid[1])
                     	.attr("width", 2.5)
@@ -260,7 +329,7 @@
                     })
                 var centroid = myPath.centroid(d);
                 for(var i = 1; i<9; i++) {
-                	d3.select("#"+cleanUp(d.properties.name)+"-"+d.properties.Info[0]+"-"+nameIndex[i])
+                	d3.select("#"+cleanUp(d.properties.name)+"-"+nameIndex[i])
                 		.attr("x", centroidTransforms[1]+centroidTransforms[0]*(centroid[0])+offsetXIndex[i])
                 		.attr("y", centroidTransforms[2]+centroidTransforms[0]*centroid[1])
                 	    .attr("width", 2)
@@ -270,6 +339,8 @@
                 }
             })
     }
+
+    //zoom and translate functions
     var container = d3.select("#mapPaths")
     var myZoom = d3.zoom()
         .scaleExtent([1, 5])
@@ -288,14 +359,14 @@
     container.call(myZoom);
 
 
-
+    //read the data, and perform function
     Promise.all([
         d3.json("countries.geo.json"), 
         d3.csv("electricity-production-by-source.csv")
     ]).then(showMapData)
     
 
-
+    //start of the visualization
     function showMapData(dataIn) {
         country = dataIn[0]
         var countryData = dataIn[1]
@@ -309,9 +380,10 @@
         	var year = +c.Year
         	dataIndex[code][year] = [+c.Year, +c.Coal, +c.Gas, +c.Oil, +c.Nuclear, +c.Hydro, +c.Solar, +c.Wind, +c.Other]
         }
-
+        drawChart();
         loadYearData(yearShowing);
         drawBars();
+        
 
         /*
         Areas changed:

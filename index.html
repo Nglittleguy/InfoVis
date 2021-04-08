@@ -27,7 +27,9 @@
 </svg>
 
 <div style = "text-align:center;"><h1><p id="value-time"></p></h1></div>
-<div id="slider-time"></div>
+<div id="slider-time">
+
+</div>
 
 
 
@@ -70,7 +72,8 @@
 
     gTime.call(sliderTime);
 
-    d3.select('p#value-time').text(d3.timeFormat('%Y')(sliderTime.value()));
+    d3.select('p#value-time').text(d3.timeFormat('%Y')(sliderTime.value())).style("font", "bold 40px sans-serif")
+                .attr("text-anchor", "middle");
 
 
     //Scaling Slider
@@ -103,6 +106,8 @@
     function updateChart(d, b) {
         if(start) {
             chartScale = 360/d3.max(d)
+            d3.select("#chartName")
+                .text(revertName(countryShowing) + " (TWh)")
             for(var i = 1; i<9; i++) {
                 d3.select("#chart-"+nameIndex[i])
                     .attr("height", d[i]*chartScale)
@@ -114,6 +119,8 @@
             start = false;
         }
         else {
+            d3.select("#chartName")
+                .text(revertName(countryShowing)+" (TWh)")
             chartScale = 360/d3.max(d)
             for(var i = 1; i<9; i++) {
                 d3.select("#chart-"+nameIndex[i])
@@ -134,9 +141,9 @@
     //Chart of Country
     function drawChart() {
         var chart = d3.select("#chart")
-        chart.append("rect").attr("id", "chartBackdrop").attr("x", 70).attr("y", 80).attr("width", 530).attr("height", 420).attr("fill", "lightgray")
+        chart.append("rect").attr("id", "chartBackdrop").attr("x", 70).attr("y", 80).attr("width", 530).attr("height", 450).attr("fill", "lightgray")
 
-
+        
         for(var i = 1; i<9; i++) {
             chart.append("rect")
                 .attr("id", "chart-"+nameIndex[i])
@@ -155,6 +162,13 @@
                 .attr("text-anchor", "middle")
 
         }
+        chart.append("text")
+            .attr("id", "chartName")
+            .attr("x", 350)
+            .attr("y", 510)
+            .attr("fill", "white")
+            .style("font", "20px sans-serif")
+            .attr("text-anchor", "middle")
     }
 
     //Rest of Project - https://www.w3schools.com/colors/colors_picker.asp
@@ -167,7 +181,7 @@
     var yearShowing = 2019;
     var countryShowing = "Canada"
     var nameIndex = ["", "coal", "gas", "oil", "nuclear", "hydro", "solar", "wind", "other"]
-    var colourIndex = ["none", "#cc3333", "#cc8033", "#a633cc", "#009900", "#3333cc", "#cccc33", "#33a6cc", "#808080"]
+    var colourIndex = ["none", "#cc3333", "#cc8033", "#a633cc", "#009900", "#3333cc", "#ffbf00", "#33a6cc", "#808080"]
     var offsetXIndex = [0, -10, -7, -4, -1, 2, 5, 8, 11]
     var country;
     var dataIndex = {};
@@ -177,6 +191,19 @@
 
     //reduces name to make it consistent
     function cleanUp(s) { return s.replace(/ /g, '').replace(/'/g,'') }
+
+    //reintroduces the spaces of the name to show
+    function revertName(s) {
+        if(s=="Coted'Ivoire")
+            return "Cote d'Ivoire"
+        if(s=="DemocraticRepublicoftheCongo")
+            return "Democratic Republic of the Congo"
+        if(s=="BosniaandHerzegovina")
+            return "Bosnia and Herzegovina"
+        if(s=="UnitedStatesofAmerica")
+            return "United States of America"
+        return s.replace(/([A-Z])/g, ' $1').trim()
+    }
 
     //puts the inital year's data into the properties
     function loadYearData(year) {
@@ -251,7 +278,7 @@
 
                         if(elem.attr("y")>1400) 
                             elem.attr("opacity", 0)
-                        else
+                        else if(!elem.attr("id").includes(countryShowing))
                             elem.attr("opacity", 0.3)
                     }
                 }                
@@ -424,7 +451,7 @@
         return false
     }
 
-    var noData = ["Antarctica", "French Southern and Antarctic Lands", "Kosovo", "Somaliland", "East Timor", "Northern Cyprus"]
+    var noData = ["Antarctica", "French Southern and Antarctic Lands", "Kosovo", "Somaliland", "East Timor", "Northern Cyprus", "Western Sahara"]
 
 </script>
 

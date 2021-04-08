@@ -267,10 +267,13 @@
             .enter()
             .append("path")
             .attr("d", myPath)
-
             .each(function(d) {
                 if(cleanUp(d.properties.name)==countryShowing) {
                     updateChart(d.properties.Info);
+                }
+                if(hasNoData(d.properties.name)) {
+                    d3.select(this)
+                        .style("fill", "#f2f2f2")
                 }
                 var centroid = myPath.centroid(d);
                 for(var i = 1; i<9; i++) {
@@ -287,6 +290,8 @@
                 }
             })
             .on("mouseover", function(d) {
+                if(hasNoData(d.properties.name))
+                    return
                 this.style.stroke = "black"
                 this.style.fill = "lightgray"
                 d3.select(this).raise()
@@ -318,6 +323,8 @@
 
             })
             .on("mouseout", function(d) {
+                if(hasNoData(d.properties.name))
+                    return
                 this.style.stroke = "#999"
                 this.style.fill = "white"
                 d3.select(this).lower()
@@ -403,10 +410,21 @@
             Kosovo
             Somaliland
             East Timor
+            Northern Cyprus
 
         */
 
     }
+
+    function hasNoData(n) {
+        for(var a of noData) {
+            if(n.includes(a))
+                return true
+        }
+        return false
+    }
+
+    var noData = ["Antarctica", "French Southern and Antarctic Lands", "Kosovo", "Somaliland", "East Timor", "Northern Cyprus"]
 
 </script>
 

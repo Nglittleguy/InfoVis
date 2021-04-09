@@ -16,6 +16,10 @@
     rect {
         stroke : white;
     }
+    li p {
+        margin: 0;
+        padding: 0;
+    }
 </style>
 
 <body>
@@ -26,7 +30,7 @@
     <g id="chart"></g>
 </svg>
 
-<div style = "text-align:center;"><h1><p id="value-time"></p></h1></div>
+<div style = "text-align:center;"><p id="value-time"></p></div>
 <div id="slider-time">
 
 </div>
@@ -102,37 +106,109 @@
 
     d3.select('p#value-vertical').text(d3.format('.2%')(sliderVertical.value()));
 
+    function updateClicked(b, d) {
+        if(b) {
+            d3.select("#chartName-"+1)
+                    .text(revertName(clicked) + " (TWh)")
+                    .attr("x", 250)
+                    .attr("opacity", 1)
+            for(var i = 1; i<9; i++) {
+                d3.select("#chart-"+nameIndex[i]+"-1")
+                    .attr("opacity", 1)
+                    .attr("width", 10)
+                    .attr("x", 120+10*(offsetXIndex[i]+10))
+                    .attr("height", clickedInfo[i]*chartScale)
+                    .attr("transform", "translate(0,"+ -clickedInfo[i]*chartScale+")")
+                d3.select("#chart-text-"+nameIndex[i]+"-1")
+                    .attr("opacity", 1)
+                    .text(+d[i].toFixed(1))
+                    .attr("x", 120+10*(offsetXIndex[i]+10))
+                    .attr("y", 470-d[i]*chartScale)
+            }
+
+            d3.select("#chartName-0")
+                    .text(revertName(clicked) + " (TWh)")
+                    .attr("x", 450)
+            for(var i = 1; i<9; i++) {
+                d3.select("#chart-"+nameIndex[i]+"-0")
+                    .attr("width", 10)
+                    .attr("x", 370+10*(offsetXIndex[i]+10))
+                d3.select("#chart-text-"+nameIndex[i]+"-0")
+                    .text(+d[i].toFixed(1))
+                    .attr("x", 370+10*(offsetXIndex[i]+10))
+            }
+        }
+        else {
+            d3.select("#chartName-"+1)
+                    .attr("opacity", 0)
+            for(var i = 1; i<9; i++) {
+                d3.select("#chart-"+nameIndex[i]+"-1")
+                    .attr("opacity", 0)
+                d3.select("#chart-text-"+nameIndex[i]+"-1")
+                    .attr("opacity", 0)
+            }
+
+            d3.select("#chartName-0")
+                    .text(revertName(countryShowing) + " (TWh)")
+                    .attr("x", 350)
+            for(var i = 1; i<9; i++) {
+                d3.select("#chart-"+nameIndex[i]+"-0")
+                    .attr("width", 20)
+                    .attr("x", 130+20*(offsetXIndex[i]+10))
+                d3.select("#chart-text-"+nameIndex[i]+"-0")
+                    .text(d[i])
+                    .attr("x", 130+20*(offsetXIndex[i]+10))
+            }
+
+        }
+        
+
+    }
+
     //Update chart of selected country
     function updateChart(d, b) {
         if(start) {
             chartScale = 360/d3.max(d)
-            d3.select("#chartName")
+            d3.select("#chartName-0")
                 .text(revertName(countryShowing) + " (TWh)")
             for(var i = 1; i<9; i++) {
-                d3.select("#chart-"+nameIndex[i])
+                d3.select("#chart-"+nameIndex[i]+"-0")
                     .attr("height", d[i]*chartScale)
                     .attr("transform", "translate(0,"+ -d[i]*chartScale+")")
-                d3.select("#chart-text-"+nameIndex[i])
-                    .text(d[i])
+                d3.select("#chart-text-"+nameIndex[i]+"-0")
+                    .text(numClicked==0 ? d[i] : +d[i].toFixed(1))
                     .attr("y", 470-d[i]*chartScale)
             }
             start = false;
         }
         else {
-            d3.select("#chartName")
+            d3.select("#chartName-0")
                 .text(revertName(countryShowing)+" (TWh)")
-            chartScale = 360/d3.max(d)
+            chartScale = 360/newScale(d3.max(d))
             for(var i = 1; i<9; i++) {
-                d3.select("#chart-"+nameIndex[i])
+                d3.select("#chart-"+nameIndex[i]+"-0")
                     .transition()
                     .duration(b ? 500 : 200)
                     .attr("height", d[i]*chartScale)
                     .attr("transform", "translate(0,"+ -d[i]*chartScale+")")
-                d3.select("#chart-text-"+nameIndex[i])
-                    .text(d[i])
+                d3.select("#chart-text-"+nameIndex[i]+"-0")
+                    .text(numClicked==0 ? d[i] : +d[i].toFixed(1))
                     .transition()
                     .duration(b ? 500 : 200)
                     .attr("y", 470-d[i]*chartScale)
+            }
+
+            for(var i = 1; i<9; i++) {
+                d3.select("#chart-"+nameIndex[i]+"-1")
+                    .transition()
+                    .duration(b ? 500 : 200)
+                    .attr("height", clickedInfo[i]*chartScale)
+                    .attr("transform", "translate(0,"+ -clickedInfo[i]*chartScale+")")
+                d3.select("#chart-text-"+nameIndex[i]+"-1")
+                    .text(numClicked==0 ? clickedInfo[i] : +clickedInfo[i].toFixed(1))
+                    .transition()
+                    .duration(b ? 500 : 200)
+                    .attr("y", 470-clickedInfo[i]*chartScale)
             }
         }
         
@@ -143,32 +219,38 @@
         var chart = d3.select("#chart")
         chart.append("rect").attr("id", "chartBackdrop").attr("x", 70).attr("y", 80).attr("width", 530).attr("height", 450).attr("fill", "lightgray")
 
-        
-        for(var i = 1; i<9; i++) {
-            chart.append("rect")
-                .attr("id", "chart-"+nameIndex[i])
-                .attr("x", 130+20*(offsetXIndex[i]+10))
-                .attr("y", 480)
-                .attr("width", 20)
-                .style("stroke-width", 2)
-                .style("stroke", "white")
-                .style("fill", colourIndex[i])
-            chart.append("text")
-                .attr("id", "chart-text-"+nameIndex[i])
-                .attr("x", 140+20*(offsetXIndex[i]+10))
-                .attr("y", 480)
-                .attr("fill", "white")
-                .style("font", "bold 15px sans-serif")
-                .attr("text-anchor", "middle")
+        for(var j = 0; j<4; j++) {
+            for(var i = 1; i<9; i++) {
+                chart.append("rect")
+                    .attr("id", "chart-"+nameIndex[i]+"-"+j)
+                    .attr("x", 130+20*(offsetXIndex[i]+10))
+                    .attr("y", 480)
+                    .attr("width", 20)
+                    .style("stroke-width", 2)
+                    .style("stroke", "white")
+                    .style("fill", colourIndex[i])
+                    .attr("opacity", j==0 ? 1 : 0)
+                chart.append("text")
+                    .attr("id", "chart-text-"+nameIndex[i]+"-"+j)
+                    .attr("x", 140+20*(offsetXIndex[i]+10))
+                    .attr("y", 480)
+                    .attr("fill", "white")
+                    .style("font", "bold 15px sans-serif")
+                    .attr("text-anchor", "middle")
+                    .attr("opacity", j==0 ? 1 : 0)
+            }
 
-        }
-        chart.append("text")
-            .attr("id", "chartName")
+            chart.append("text")
+            .attr("id", "chartName-"+j)
             .attr("x", 350)
             .attr("y", 510)
             .attr("fill", "white")
             .style("font", "20px sans-serif")
             .attr("text-anchor", "middle")
+            .attr("opacity", j==0 ? 1 : 0)
+        }
+        
+        
     }
 
     //Rest of Project - https://www.w3schools.com/colors/colors_picker.asp
@@ -185,6 +267,10 @@
     var offsetXIndex = [0, -10, -7, -4, -1, 2, 5, 8, 11]
     var country;
     var dataIndex = {};
+    var numClicked = 0;
+    var clicked;
+    var clickedMax = 0;
+    var clickedInfo = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     //keep track of transformations used during scaling
     var centroidTransforms = [1,0,0];
@@ -203,6 +289,10 @@
         if(s=="UnitedStatesofAmerica")
             return "United States of America"
         return s.replace(/([A-Z])/g, ' $1').trim()
+    }
+
+    function newScale(d) {
+        return (d>clickedMax) ? d : clickedMax
     }
 
     //puts the inital year's data into the properties
@@ -293,6 +383,7 @@
             .data(country.features)
             .enter()
             .append("path")
+            .attr("clicked", false)
             .attr("d", myPath)
             .each(function(d) {
                 if(cleanUp(d.properties.name)==countryShowing) {
@@ -313,8 +404,9 @@
                         .attr("transform", "translate(0,"+ -d.properties.Info[i]*yScale+")")
                     	.style("stroke-width", 0)
                     	.style("fill", colourIndex[i])
-
                 }
+                d3.select(this)
+                    .attr("id", cleanUp(d.properties.name)+"Path")
             })
             .on("mouseover", function(d) {
                 if(hasNoData(d.properties.name))
@@ -356,6 +448,9 @@
                 this.style.fill = "white"
                 d3.select(this).lower()
                 var allOthers = d3.selectAll("rect")
+                    .filter(function() {
+                        return !this.id.includes("chart")
+                    })
                 	.attr("opacity", 1)
                     .each(function(k) {
                         if(d3.select(this).attr("y")>1400)
@@ -370,6 +465,32 @@
                 	    .attr("height", d.properties.Info[i]*yScale)
                         .attr("transform", "translate(0,"+ -d.properties.Info[i]*yScale+")")
                 	    .style("stroke-width", 0)
+                }
+            })
+            .on("click", function(d) {
+                if(hasNoData(d.properties.name))
+                    return
+                if(!d.clicked && numClicked==0) {
+                    numClicked++
+                    d.clicked = true
+                    clickedInfo = d.properties.Info
+                    clickedMax = d3.max(clickedInfo)
+                    clicked = cleanUp(d.properties.name)
+                    updateClicked(true, clickedInfo)
+                }
+                else if(d.clicked) {
+                    numClicked--
+                    d.clicked = false
+                    // for(var i = 0; i<clicked.length; i++) {
+                    //     if(clicked == cleanUp(d.properties.name)) {
+                    //         clicked.splice(i, 1)
+                    //         break
+                    //     }
+                    // }
+                    clickedInfo = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    clickedMax = 0
+                    clicked = null;
+                    updateClicked(false, d.properties.Info)
                 }
             })
     }
@@ -451,7 +572,7 @@
         return false
     }
 
-    var noData = ["Antarctica", "French Southern and Antarctic Lands", "Kosovo", "Somaliland", "East Timor", "Northern Cyprus", "Western Sahara"]
+    var noData = ["Antarctica", "French Southern and Antarctic Lands", "Kosovo", "Somaliland", "East Timor", "Northern Cyprus", "Western Sahara", "South Sudan"]
 
 </script>
 

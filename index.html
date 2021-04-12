@@ -23,31 +23,37 @@
 </style>
 
 <body>
-<svg viewBox="0 0 1500 1400">
+<svg viewBox="0 0 1400 1400">
     <g id="mapPaths"></g>
     <g id="barsRect"></g>
     <g id="slider-vertical"></g>
     <g id="chart"></g>
+    <g id="textOverlay"></g>
 </svg>
-
-<div style = "text-align:center;"><p id="value-time"></p></div>
-<div id="slider-time">
-
-</div>
+<div id="slider-time"></div>
 
 
 
 
-<A HREF = "index.html">Animated</A>
-<A HREF = "indexFlat.html">Flat</A>
-<A HREF = "indexSkew.html">Skew</A>
-<A HREF = "indexSplit.html">Split</A>
-<A HREF = "indexRadial.html">Radial</A>
+<A HREF = "index.html">Final</A> - 
+Iteration 4: (
+<A HREF = "indexClick.html">Click</A>, 
+<A HREF = "indexSlider.html">Sliders</A>, 
+<A HREF = "indexZoom.html">Zoom</A> )
+Iteration 3: (
+<A HREF = "indexSkew.html">Skew</A>, 
+<A HREF = "indexSplit.html">Split</A>, 
+<A HREF = "indexRadial.html">Radial</A>, 
+<A HREF = "indexFlat.html">Flat</A> )    - 
+<A HREF = "https://ourworldindata.org/grapher/electricity-production-by-source">Data Source</A>
 
 </body>
 
 <script>
 
+	var map = d3.select("#mapPaths");
+	var overlay = d3.select("#textOverlay")
+    var bars = d3.select("#barsRect");
     var nameToCode = new Map()
 
     var width = window.innerWidth;
@@ -65,7 +71,9 @@
         .tickValues(dataTime)
         .default(new Date(2019, 10, 3))
         .on('onchange', val => {
-            d3.select('p#value-time').text(d3.timeFormat('%Y')(val));
+            overlay.select('#value-time').text(d3.timeFormat('%Y')(val));
+            d3.select("#yearText").transition().duration(300).attr("opacity", 0)
+    		d3.select("#sliderText").transition().duration(300).attr("opacity", 0)
             updateYear(d3.timeFormat('%Y')(val));
         });
 
@@ -78,19 +86,18 @@
 
     gTime.call(sliderTime);
 
-    d3.select('p#value-time').text(d3.timeFormat('%Y')(sliderTime.value())).style("font", "bold 40px sans-serif")
-                .attr("text-anchor", "middle");
-
 
     //Scaling Slider
     var sliderVertical = d3.sliderLeft()
         .min(0.5)
         .max(10)
-        .height(1000)
+        .height(1300)
         .ticks(10)
         .default(1)
         .on('onchange', val => {
             d3.select('p#value-vertical').text(d3.format('.2%')(val));
+            d3.select("#yearText").transition().duration(300).attr("opacity", 0)
+    		d3.select("#sliderText").transition().duration(300).attr("opacity", 0)
             yScale = Math.pow(val,2)*0.18;
             updateYear(yearShowing)
         });
@@ -98,15 +105,15 @@
     var gVertical = d3.select('#slider-vertical')
         .append('svg')
         .attr('width', 1000)
-        .attr('height', 1100)
-        .attr('x', 1300)
-        .attr('y', 300)
+        .attr('height', 1300)
+        .attr('x', 1250)
+        .attr('y', 70)
         .append('g')
         .attr('transform', 'translate(80,30)');
 
     gVertical.call(sliderVertical);
 
-    d3.select('p#value-vertical').text(d3.format('.2%')(sliderVertical.value()));
+    d3.select('#value-vertical').text(d3.format('.2%')(sliderVertical.value()));
 
     function updateClicked(b, d) {
         chartScale = 360/newScale(d3.max(dataShowing))
@@ -219,7 +226,6 @@
                 .text(revertName(countryShowing)+" (TWh)")
                 .style("font", (numClicked == 0) ? "20px sans-serif" : textSize(countryShowing)+"px sans-serif")
             
-            
             chartScale = 360/newScale(d3.max(dataShowing))
             for(var i = 1; i<9; i++) {
                 d3.select("#chart-"+nameIndex[i]+"-0")
@@ -259,7 +265,7 @@
     //Chart of Country
     function drawChart() {
         var chart = d3.select("#chart")
-        chart.append("rect").attr("id", "chartBackdrop").attr("x", 70).attr("y", 80).attr("width", 550).attr("height", 450).attr("fill", "lightgray")
+        chart.append("rect").attr("id", "chartBackdrop").attr("x", 70).attr("y", 80).attr("width", 550).attr("height", 450).attr("fill", "darkgray").attr("rx", 5)
 
         var y = d3.scaleLinear().domain([0, 1/chartScale*360]).range([360, 0])
         yAxis = chart.append("g").attr("transform", "translate(110,120)").call(d3.myAxisLeft(y))
@@ -302,14 +308,14 @@
 
     //Rest of Project - https://www.w3schools.com/colors/colors_picker.asp
 
-    var myProj = d3.geoNaturalEarth1().scale(300).translate([575,1100])
+    var myProj = d3.myGeoNaturalEarth1().scale(300).translate([575,1200])
     var myPath = d3.geoPath().projection(myProj)
-    var yScale = 0.18
+    var yScale = 0.22
     var chartScale = 0.9
     var start = true;
     var yearShowing = 2019;
     var countryShowing = "Canada"
-    var nameIndex = ["", "coal", "gas", "oil", "nuclear", "hydro", "solar", "wind", "other"]
+    var nameIndex = ["", "Coal", "NaturalGas", "Oil", "Nuclear", "Hydro", "Solar", "Wind", "OtherRenewables"]
     var colourIndex = ["none", "#cc3333", "#cc8033", "#a633cc", "#009900", "#3333cc", "#ffbf00", "#33a6cc", "#808080"]
     var offsetXIndex = [0, -10, -7, -4, -1, 2, 5, 8, 11]
     var country;
@@ -337,6 +343,8 @@
             return "Bosnia and Herzegovina"
         if(s=="UnitedStatesofAmerica")
             return "United States of America"
+        if(s=="Guinea-Bissau"
+            return "Guinea-Bissau"
         return s.replace(/([A-Z])/g, ' $1').trim()
     }
 
@@ -391,12 +399,22 @@
     //changes the year, so update the data as well as update the bars representing the data
     function updateYear(v) { 
     	updateYearData(v);
-
+    	var k = 0
     	d3.selectAll("path")
     		.each(function(d) {
-                if(cleanUp(d.properties.name) == countryShowing)
-                    updateChart(d.properties.Info, 0)
                 if(d.properties!=undefined){
+                	if(cleanUp(d.properties.name) == clicked) {
+                		clickedInfo = d.properties.Info
+                		clickedMax = d3.max(clickedInfo)
+                		if(k==1)
+                    		updateChart(0)
+                    	k++
+                	}
+                	if(cleanUp(d.properties.name) == countryShowing) {
+               			if(k==numClicked)
+                    		updateChart(0)
+                    	k++
+                	}
                     var centroid = myPath.centroid(d);
                     for(var i = 1; i<9; i++) {
                         d3.select("#"+cleanUp(d.properties.name)+"-"+nameIndex[i])
@@ -436,8 +454,7 @@
 
     //draws the paths of the map, and the bars of each country's data
     function drawBars() {
-    	var map = d3.select("#mapPaths");
-        var bars = d3.select("#barsRect");
+
         map.selectAll("path")
             .data(country.features)
             .enter()
@@ -470,6 +487,9 @@
                 nameToCode.set(cleanUp(d.properties.name), d.id)
             })
             .on("mouseover", function(d) {
+            	d3.select("#yearText").transition().duration(300).attr("opacity", 0)
+    			d3.select("#sliderText").transition().duration(300).attr("opacity", 0)
+
                 if(hasNoData(d.properties.name))
                     return
                 this.style.stroke = "black"
@@ -553,17 +573,121 @@
                     updateClicked(false, d.properties.Info)
                 }
             })
-        console.log(nameToCode)
+
+        overlay.append("text")
+        	.attr("id", "value-time")
+        	.style("font", "bold 40px sans-serif")
+        	.attr("fill", "gray")
+        	.attr("text-anchor", "middle")
+        	.attr("x", 700)
+        	.attr("y", 120)
+        	.text(d3.timeFormat('%Y')(sliderTime.value()))
+
+       	for(var i = 1; i<9; i++) {
+       		overlay.append("text")
+       			.style("font", "15px sans-serif")
+       			.attr("text-anchor", "left")
+       			.attr("x", 680)
+       			.attr("y", 120 + i * 30)
+       			.attr("fill", "gray")
+       			.text(revertName(nameIndex[i]))
+
+       		overlay.append("circle")
+       			.attr("cx", 665)
+       			.attr("cy", 115 + i * 30)
+       			.attr("r", 10)
+       			.attr("stroke", "white")
+       			.attr("stroke-width", 1)
+       			.attr("fill", colourIndex[i])
+
+       	}
+
+       	overlay.append("text")
+        	.text("Click on a country to pin it for comparison.")
+        	.style("font", "bold 15px sans-serif")
+        	.attr("fill", "lightgray")
+        	.attr("text-anchor", "middle")
+        	.attr("x", 350)
+        	.attr("y", 550)
+
+       	overlay.append("rect")
+       		.attr("id", "chartResetMap")
+       		.attr("x", 650)
+       		.attr("y", 480)
+       		.attr("rx", 10)
+       		.attr("width", 150)
+       		.attr('height', 50)
+       		.attr("fill", "darkgray")
+       		.on("click", function(d) {
+        		container.call(myZoom.transform, d3.zoomIdentity)
+        		d3.select("#title").attr("opacity", 1)
+        		d3.select("#name").attr("opacity", 1)
+        	})
+
+       	overlay.append("text")
+        	.style("font", "italic 20px sans-serif")
+        	.attr("fill", "white")
+        	.attr("text-anchor", "middle")
+        	.attr("x", 720)
+        	.attr("y", 510)
+        	.text("Reset Map")
+        	.on("click", function(d) {
+        		container.call(myZoom.transform, d3.zoomIdentity)
+        		d3.select("#title").attr("opacity", 1)
+        		d3.select("#name").attr("opacity", 1)
+        	})
+
+        overlay.append("text")
+        	.attr("id", "title")
+        	.text("Electricity Production by Source: 2000-2019")
+        	.style("font", "bold 30px sans-serif")
+        	.attr("fill", "gray")
+        	.attr("text-anchor", "middle")
+        	.attr("x", 380)
+        	.attr("y", 600)
+        
+        overlay.append("text")
+        	.attr("id", "name")
+        	.text("by Stephen Ng - CPSC 583 W21")
+        	.style("font", "bold 20px sans-serif")
+        	.attr("fill", "gray")
+        	.attr("text-anchor", "middle")
+        	.attr("x", 380)
+        	.attr("y", 625)
+
+        overlay.append("text")
+        	.attr("id", "sliderText")
+        	.attr("opacity", 1)
+        	.text("Scale Slider")
+        	.style("font", "bold italic 30px sans-serif")
+        	.attr("fill", "black")
+        	.attr("text-anchor", "middle")
+        	.attr("x", 1200)
+        	.attr("y", 800)
+
+        overlay.append("text")
+        	.attr("id", "yearText")
+        	.attr("opacity", 1)
+        	.text("Year Slider")
+        	.style("font", "bold italic 30px sans-serif")
+        	.attr("fill", "black")
+        	.attr("text-anchor", "middle")
+        	.attr("x", 700)
+        	.attr("y", 1400)
     }
 
     //zoom and translate functions
     var container = d3.select("#mapPaths")
     var myZoom = d3.zoom()
         .scaleExtent([1, 5])
-        .translateExtent([[0,0], [1400, 1300]])
+        .translateExtent([[0,-500], [1400, 1300]])
         .on('zoom', zooming);
 
     function zooming() {
+    	d3.select("#title").attr("opacity", 0.2)
+    	d3.select("#name").attr("opacity", 0.2)
+    	d3.select("#yearText").transition().duration(200).attr("opacity", 0)
+    	d3.select("#sliderText").transition().duration(200).attr("opacity", 0)
         d3.selectAll('path')
             .attr('transform', d3.event.transform)
         centroidTransforms[0]=d3.event.transform.k;

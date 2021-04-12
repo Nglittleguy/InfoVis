@@ -19,11 +19,17 @@
 </style>
 
 <body>
-<A HREF = "index.html">Animated</A>
-<A HREF = "indexFlat.html">Flat</A>
-<A HREF = "indexSkew.html">Skew</A>
-<A HREF = "indexSplit.html">Split</A>
-<A HREF = "indexRadial.html">Radial</A>
+<A HREF = "index.html">Final</A> - 
+Iteration 4: (
+<A HREF = "indexClick.html">Click</A>, 
+<A HREF = "indexSlider.html">Sliders</A>, 
+<A HREF = "indexZoom.html">Zoom</A> )
+Iteration 3: (
+<A HREF = "indexSkew.html">Skew</A>, 
+<A HREF = "indexSplit.html">Split</A>, 
+<A HREF = "indexRadial.html">Radial</A>, 
+<A HREF = "indexFlat.html">Flat</A> )    - 
+<A HREF = "https://ourworldindata.org/grapher/electricity-production-by-source">Data Source</A>
 
 <svg viewBox="0 0 1500 2100">
 
@@ -37,11 +43,18 @@
 
 
 
-<A HREF = "index.html">Animated</A>
-<A HREF = "indexFlat.html">Flat</A>
-<A HREF = "indexSkew.html">Skew</A>
-<A HREF = "indexSplit.html">Split</A>
-<A HREF = "indexRadial.html">Radial</A>
+<A HREF = "index.html">Final</A> - 
+Iteration 4: (
+<A HREF = "indexClick.html">Click</A>, 
+<A HREF = "indexSlider.html">Sliders</A>, 
+<A HREF = "indexZoom.html">Zoom</A> )
+Iteration 3: (
+<A HREF = "indexSkew.html">Skew</A>, 
+<A HREF = "indexSplit.html">Split</A>, 
+<A HREF = "indexRadial.html">Radial</A>, 
+<A HREF = "indexFlat.html">Flat</A> )    - 
+<A HREF = "https://ourworldindata.org/grapher/electricity-production-by-source">Data Source</A>
+
 
 </body>
 
@@ -224,6 +237,21 @@
                 	    .style("stroke-width", 0)
                 }
             })
+
+        map.append("text")
+            .style("font", "bold 20px sans-serif")
+            .attr("fill", "black")
+            .attr("text-anchor", "middle")
+            .attr("x", 700)
+            .attr("y", 700)
+            .text("Sliders to increase scale for map (countries with small usage, now visible).")
+        map.append("text")
+            .style("font", "bold 20px sans-serif")
+            .attr("fill", "black")
+            .attr("text-anchor", "middle")
+            .attr("x", 700)
+            .attr("y", 730)
+            .text("Sliders to change the year of the data showing (comparison over time).")
     }
 
 

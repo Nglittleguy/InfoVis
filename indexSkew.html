@@ -19,19 +19,31 @@
 </style>
 
 <body>
-<A HREF = "index.html">Animated</A>
-<A HREF = "indexFlat.html">Flat</A>
-<A HREF = "indexSkew.html">Skew</A>
-<A HREF = "indexSplit.html">Split</A>
-<A HREF = "indexRadial.html">Radial</A>
+<A HREF = "index.html">Final</A> - 
+Iteration 4: (
+<A HREF = "indexClick.html">Click</A>, 
+<A HREF = "indexSlider.html">Sliders</A>, 
+<A HREF = "indexZoom.html">Zoom</A> )
+Iteration 3: (
+<A HREF = "indexSkew.html">Skew</A>, 
+<A HREF = "indexSplit.html">Split</A>, 
+<A HREF = "indexRadial.html">Radial</A>, 
+<A HREF = "indexFlat.html">Flat</A> )    - 
+<A HREF = "https://ourworldindata.org/grapher/electricity-production-by-source">Data Source</A>
 
 <svg width="1500" height="1700">
 </svg>
-<A HREF = "index.html">Animated</A>
-<A HREF = "indexFlat.html">Flat</A>
-<A HREF = "indexSkew.html">Skew</A>
-<A HREF = "indexSplit.html">Split</A>
-<A HREF = "indexRadial.html">Radial</A>
+<A HREF = "index.html">Final</A> - 
+Iteration 4: (
+<A HREF = "indexClick.html">Click</A>, 
+<A HREF = "indexSlider.html">Sliders</A>, 
+<A HREF = "indexZoom.html">Zoom</A> )
+Iteration 3: (
+<A HREF = "indexSkew.html">Skew</A>, 
+<A HREF = "indexSplit.html">Split</A>, 
+<A HREF = "indexRadial.html">Radial</A>, 
+<A HREF = "indexFlat.html">Flat</A> )    - 
+<A HREF = "https://ourworldindata.org/grapher/electricity-production-by-source">Data Source</A>
 
 </body>
 
@@ -292,6 +304,18 @@
                     .attr("height", d.properties.Info[8]*yScale)
                     .style("stroke-width", 0)
             })
+
+        
+        map.append("text")
+        	.attr("x", 200)
+        	.attr("y", 1000)
+        	.text("This grounds the data (now the data is the height of towers sprouting the the country)")
+
+        map.append("text")
+        	.attr("x", 200)
+        	.attr("y", 1000)
+        	.attr("dy", 20)
+        	.text("and brings the base of the bars closer together in the vertical axis so they're easier to compare.")
     }
 
     //function drawData(countries) {

@@ -27,12 +27,17 @@
 
 
 
-
-<A HREF = "index.html">Animated</A>
-<A HREF = "indexFlat.html">Flat</A>
-<A HREF = "indexSkew.html">Skew</A>
-<A HREF = "indexSplit.html">Split</A>
-<A HREF = "indexRadial.html">Radial</A>
+<A HREF = "index.html">Final</A> - 
+Iteration 4: (
+<A HREF = "indexClick.html">Click</A>, 
+<A HREF = "indexSlider.html">Sliders</A>, 
+<A HREF = "indexZoom.html">Zoom</A> )
+Iteration 3: (
+<A HREF = "indexSkew.html">Skew</A>, 
+<A HREF = "indexSplit.html">Split</A>, 
+<A HREF = "indexRadial.html">Radial</A>, 
+<A HREF = "indexFlat.html">Flat</A> )    - 
+<A HREF = "https://ourworldindata.org/grapher/electricity-production-by-source">Data Source</A>
 
 </body>
 
@@ -207,6 +212,21 @@ var centroidTransforms = [1,0,0];
                         .style("stroke-width", 0)
                 }
             })
+
+        map.append("text")
+            .style("font", "bold 20px sans-serif")
+            .attr("fill", "black")
+            .attr("text-anchor", "middle")
+            .attr("x", 700)
+            .attr("y", 400)
+            .text("Scroll (or double click) over a country to zoom in, and drag to translate.")
+        map.append("text")
+            .style("font", "bold 20px sans-serif")
+            .attr("fill", "black")
+            .attr("text-anchor", "middle")
+            .attr("x", 700)
+            .attr("y", 430)
+            .text("The width doesn't change so that exploration is easier (clearer to see when larger countries).")
     }
     var container = d3.select("#mapPaths")
     var myZoom = d3.zoom()
